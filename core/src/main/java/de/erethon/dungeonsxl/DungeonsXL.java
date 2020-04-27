@@ -58,6 +58,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
@@ -123,6 +125,7 @@ public class DungeonsXL extends DREPlugin {
     @Override
     public void onEnable() {
         super.onEnable();
+        Bukkit.getLogger().log(Level.INFO, "CoronaMajnec version of DXL loading...");
         instance = this;
         initFolders();
         loadCaliburnAPI();

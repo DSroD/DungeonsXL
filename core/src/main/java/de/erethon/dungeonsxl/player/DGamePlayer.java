@@ -105,7 +105,7 @@ public class DGamePlayer extends DInstancePlayer {
         initialLives = rules.getInitialLives();
         lives = initialLives;
 
-        Location teleport = world.getLobbyLocation();
+        Location teleport = rules.isLobbyDisabled() ? world.getStartLocation(DGroup.getByPlayer(player)) : world.getLobbyLocation();
         if (teleport == null) {
             PlayerUtil.secureTeleport(player, world.getWorld().getSpawnLocation());
         } else {
@@ -113,10 +113,10 @@ public class DGamePlayer extends DInstancePlayer {
         }
     }
 
-    public DGamePlayer(DungeonsXL plugin, Player player, DGameWorld world, GameType ready) {
+    public DGamePlayer(DungeonsXL plugin, Player player, DGameWorld world, GameType type) {
         this(plugin, player, world);
-        if (ready != null) {
-            ready(ready);
+        if (type != null) {
+            ready(type);
         }
     }
 

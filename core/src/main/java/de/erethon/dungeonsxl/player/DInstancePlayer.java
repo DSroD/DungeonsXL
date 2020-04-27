@@ -22,6 +22,7 @@ import de.erethon.dungeonsxl.util.ParsingUtil;
 import de.erethon.dungeonsxl.world.DGameWorld;
 import de.erethon.dungeonsxl.world.DInstanceWorld;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
@@ -77,8 +78,8 @@ public abstract class DInstancePlayer extends DGlobalPlayer {
         player.getInventory().setArmorContents(null);
         player.setExp(0f);
         player.setLevel(0);
-        player.setMaxHealth(20);
-        player.setHealth(20);
+        //player.setMaxHealth(); see what happens haha
+        player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         player.setFoodLevel(20);
         for (PotionEffect effect : player.getActivePotionEffects()) {
             player.removePotionEffect(effect.getType());
@@ -87,6 +88,7 @@ public abstract class DInstancePlayer extends DGlobalPlayer {
             player.setCollidable(true);
             player.setInvulnerable(false);
         }
+        player.updateInventory();
     }
 
     /**
