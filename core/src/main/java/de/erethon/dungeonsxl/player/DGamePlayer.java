@@ -139,6 +139,17 @@ public class DGamePlayer extends DInstancePlayer {
     }
 
     /**
+     * Public method for Quests extension
+     * @return Players DGroup
+     */
+    public DGroup getGroup() {
+        if (dGroup == null) {
+            dGroup = DGroup.getByPlayer(player);
+        }
+        return dGroup;
+    }
+
+    /**
      * @param player the player to set
      */
     public void setPlayer(Player player) {
@@ -725,6 +736,8 @@ public class DGamePlayer extends DInstancePlayer {
 
     public void respawn() {
         Location respawn = checkpoint;
+
+
 
         if (respawn == null) {
             respawn = getDGroup().getGameWorld().getStartLocation(dGroup);

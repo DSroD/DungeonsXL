@@ -36,6 +36,10 @@ public enum GameGoal {
      */
     LAST_MAN_STANDING,
     /**
+     * The game ends when a player dies and only one player is left
+     */
+    LAST_PLAYER_STANDING,
+    /**
      * The game ends when a group reachs a specific score.
      */
     REACH_SCORE,

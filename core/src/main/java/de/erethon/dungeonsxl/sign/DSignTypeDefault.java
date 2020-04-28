@@ -17,10 +17,7 @@
 package de.erethon.dungeonsxl.sign;
 
 import de.erethon.dungeonsxl.player.DPermission;
-import de.erethon.dungeonsxl.sign.lobby.ClassesSign;
-import de.erethon.dungeonsxl.sign.lobby.LobbySign;
-import de.erethon.dungeonsxl.sign.lobby.ReadySign;
-import de.erethon.dungeonsxl.sign.lobby.StartSign;
+import de.erethon.dungeonsxl.sign.lobby.*;
 import de.erethon.dungeonsxl.sign.message.ActionBarSign;
 import de.erethon.dungeonsxl.sign.message.HologramSign;
 import de.erethon.dungeonsxl.sign.message.MessageSign;
@@ -72,7 +69,8 @@ public enum DSignTypeDefault implements DSignType {
     TELEPORT("Teleport", "teleport", false, false, TeleportSign.class),
     TITLE("Title", "title", true, false, TitleSign.class),
     TRIGGER("Trigger", "trigger", true, false, TriggerSign.class),
-    WAVE("Wave", "wave", false, false, WaveSign.class);
+    WAVE("Wave", "wave", false, false, WaveSign.class),
+    PLAYERSTART("PlayerStart", "playerstart", true, false, PlayerStartSign.class);
 
     private String name;
     private String buildPermission;

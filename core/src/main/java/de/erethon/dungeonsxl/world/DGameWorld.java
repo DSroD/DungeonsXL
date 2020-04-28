@@ -28,11 +28,13 @@ import de.erethon.dungeonsxl.event.gameworld.GameWorldUnloadEvent;
 import de.erethon.dungeonsxl.game.Game;
 import de.erethon.dungeonsxl.game.GameRuleProvider;
 import de.erethon.dungeonsxl.mob.DMob;
+import de.erethon.dungeonsxl.player.DGamePlayer;
 import de.erethon.dungeonsxl.player.DGroup;
 import de.erethon.dungeonsxl.sign.DSign;
 import de.erethon.dungeonsxl.sign.DSignType;
 import de.erethon.dungeonsxl.sign.LocationSign;
 import de.erethon.dungeonsxl.sign.MobSign;
+import de.erethon.dungeonsxl.sign.lobby.PlayerStartSign;
 import de.erethon.dungeonsxl.sign.lobby.StartSign;
 import de.erethon.dungeonsxl.trigger.FortuneTrigger;
 import de.erethon.dungeonsxl.trigger.ProgressTrigger;
@@ -55,6 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -89,13 +93,13 @@ public class DGameWorld extends DInstanceWorld {
 
     // TO DO: Which lists actually need to be CopyOnWriteArrayLists?
     private List<Block> placedBlocks = new LinkedList<>();
-
     private Set<GameBlock> gameBlocks = new HashSet<>();
     private Set<LockedDoor> lockedDoors = new HashSet<>();
     private Set<PlaceableBlock> placeableBlocks = new HashSet<>();
     private Set<RewardChest> rewardChests = new HashSet<>();
     private Set<TeamBed> teamBeds = new HashSet<>();
     private Set<TeamFlag> teamFlags = new HashSet<>();
+    private int currentPlayerSpawn = 0;
 
     private List<ItemStack> secureObjects = new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<Sign> classesSigns = new CopyOnWriteArrayList<>();
@@ -172,6 +176,29 @@ public class DGameWorld extends DInstanceWorld {
                     return ((LocationSign) dSign).getLocation();
                 }
             }
+        }
+
+        // Try player indexed spawns
+        //TODO: vylepšit
+        ArrayList<PlayerStartSign> playerStartSigns = new ArrayList<PlayerStartSign>();
+        for (DSign dSign : dSigns) {
+            if (dSign instanceof PlayerStartSign) {
+                playerStartSigns.add((PlayerStartSign)dSign);
+            }
+        }
+        if (playerStartSigns.size() > 0) {
+            Bukkit.getLogger().log(Level.INFO, "Máme " + playerStartSigns.size() + " player start signs");
+            if (currentPlayerSpawn == playerStartSigns.size()) {
+                currentPlayerSpawn = 0;
+            }
+            for(PlayerStartSign pSign : playerStartSigns)
+            {
+                if(pSign.getId() == currentPlayerSpawn) {
+                    currentPlayerSpawn++;
+                    return ((LocationSign) pSign).getLocation();
+                }
+            }
+
         }
 
         // Try any location

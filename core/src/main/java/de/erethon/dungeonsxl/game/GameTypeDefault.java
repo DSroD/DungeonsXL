@@ -38,6 +38,7 @@ public enum GameTypeDefault implements GameType {
     PVE_TIME_IS_RUNNING("Player versus Environment - Time is Running", "PvE TiR", TIME_SURVIVAL, false, false, true, true, false, false, false, GameMode.SURVIVAL, true),
     PVP_FACTIONS_BATTLEFIELD("Player versus Player - Factions Battlefield", "FactionsPvP", LAST_MAN_STANDING, true, false, false, false, false, false, false, GameMode.SURVIVAL, true),
     PVP_LAST_MAN_STANDING("Player versus Player - Last Man Standing", "PvP LMS", LAST_MAN_STANDING, true, false, false, false, false, false, false, GameMode.SURVIVAL, true),
+    PVP_LAST_PLAYER_STANDING("Player versus Player - Last Man Standing (no groups)", "PvP LPS", LAST_PLAYER_STANDING, true, true, false, true, false, false, false, GameMode.ADVENTURE, true ),
     QUEST("Quest", "Quest", END, false, false, true, false, false, false, false, GameMode.SURVIVAL, true),
     QUEST_TIME_IS_RUNNING("Quest - Time is Running", "Quest TiR", END, false, false, true, true, false, false, false, GameMode.SURVIVAL, true),
     TEST("Test", "Test", HIGHSCORE, false, false, false, true, true, true, true, GameMode.SURVIVAL, false),
