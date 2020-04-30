@@ -78,7 +78,7 @@ public abstract class JoinSign extends GlobalProtection {
             }
         }
 
-        // LEGACY
+        // LEGACY ???
         if (config.contains("maxElements")) {
             maxElements = config.getInt("maxElements");
         } else if (config.contains("maxGroupsPerGame")) {
@@ -88,9 +88,11 @@ public abstract class JoinSign extends GlobalProtection {
         }
 
         verticalSigns = (int) Math.ceil((float) (1 + maxElements) / 4);
-
-        if (startIfElementsAtLeast > 0 && startIfElementsAtLeast <= maxElements) {
-            startIfElementsAtLeast = config.getInt("startIfElementsAtLeast");
+        if(config.contains("startIfElementsAtLeast")) {
+            int str = config.getInt("startIfElementsAtLeast");
+            if (str > 0 && str <= maxElements) {
+                startIfElementsAtLeast = str;
+            }
         }
 
         update();

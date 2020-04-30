@@ -896,6 +896,18 @@ public class DGamePlayer extends DInstancePlayer {
                     game.getDGroups().get(0).winGame();
                 }
             }
+            if (gameType.getGameGoal() == GameGoal.LAST_PLAYER_STANDING) {
+                int remplayers = 0;
+                DGroup lg = null;
+                for(DGroup g : game.getDGroups()) {
+                    if(g.getDGamePlayers().size() == 0) continue;
+                    lg = g;
+                    remplayers += g.getDGamePlayers().size();
+                }
+                if(remplayers <= 1 && lg != null) {
+                    lg.winGame(80L);
+                }
+            }
         }
     }
 

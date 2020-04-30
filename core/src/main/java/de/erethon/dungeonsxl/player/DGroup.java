@@ -42,6 +42,8 @@ import java.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
@@ -894,6 +896,15 @@ public class DGroup {
             player.leave(false);
             MessageUtil.sendTitleMessage(player.getPlayer(), title, subtitle, 20, 20, 100);
         }
+    }
+
+    public BukkitTask winGame(long delay) {
+        return (new BukkitRunnable() {
+            @Override
+            public void run() {
+                winGame();
+            }
+        }).runTaskLater(this.plugin, delay);
     }
 
     public boolean checkTime(Game game) {
