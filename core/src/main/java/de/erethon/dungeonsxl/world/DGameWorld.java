@@ -19,6 +19,7 @@ package de.erethon.dungeonsxl.world;
 import de.erethon.caliburn.CaliburnAPI;
 import de.erethon.caliburn.item.ExItem;
 import de.erethon.caliburn.item.VanillaItem;
+import de.erethon.commons.compatibility.Internals;
 import de.erethon.commons.compatibility.Version;
 import de.erethon.commons.misc.BlockUtil;
 import de.erethon.commons.misc.FileUtil;
@@ -59,7 +60,6 @@ import java.util.Map;
 import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
@@ -96,13 +96,8 @@ public class DGameWorld extends DInstanceWorld implements GameWorld {
 
     private boolean readySign;
 
-    DGameWorld(DungeonsXL plugin, DResourceWorld resourceWorld, File folder, World world, int id) {
-        super(plugin, resourceWorld, folder, world, id);
-        caliburn = plugin.getCaliburn();
-    }
-
-    DGameWorld(DungeonsXL plugin, DResourceWorld resourceWorld, File folder, int id) {
-        this(plugin, resourceWorld, folder, null, id);
+    DGameWorld(DungeonsXL plugin, DResourceWorld resourceWorld, File folder) {
+        super(plugin, resourceWorld, folder);
         caliburn = plugin.getCaliburn();
     }
 
@@ -170,6 +165,9 @@ public class DGameWorld extends DInstanceWorld implements GameWorld {
     @Override
     public DungeonSign createDungeonSign(Sign sign, String[] lines) {
         DungeonSign dSign = super.createDungeonSign(sign, lines);
+        if (dSign == null) {
+            return null;
+        }
 
         String[] triggerTypes = lines[3].replaceAll("\\s", "").split(",");
         for (String triggerString : triggerTypes) {
@@ -410,7 +408,9 @@ public class DGameWorld extends DInstanceWorld implements GameWorld {
         }
 
         getWorld().setDifficulty(getRules().getState(GameRule.DIFFICULTY));
-        getWorld().setGameRule(org.bukkit.GameRule.DO_FIRE_TICK, getRules().getState(GameRule.FIRE_TICK));
+        if (Internals.isAtLeast(Internals.v1_13_R1)) {
+            getWorld().setGameRule(org.bukkit.GameRule.DO_FIRE_TICK, getRules().getState(GameRule.FIRE_TICK));
+        }
 
         isPlaying = true;
 

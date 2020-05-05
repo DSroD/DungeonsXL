@@ -17,6 +17,7 @@
 package de.erethon.dungeonsxl.world;
 
 import de.erethon.commons.chat.MessageUtil;
+import de.erethon.commons.compatibility.Internals;
 import de.erethon.commons.compatibility.Version;
 import de.erethon.commons.misc.FileUtil;
 import de.erethon.dungeonsxl.DungeonsXL;
@@ -29,7 +30,6 @@ import de.erethon.dungeonsxl.api.world.GameWorld;
 import de.erethon.dungeonsxl.api.world.ResourceWorld;
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.OfflinePlayer;
@@ -60,12 +60,12 @@ public class DResourceWorld implements ResourceWorld {
             folder.mkdir();
         }
 
-        File configFile = new File(folder, "config.yml");
+        File configFile = new File(folder, WorldConfig.FILE_NAME);
         if (configFile.exists()) {
             config = new WorldConfig(plugin, configFile);
         }
 
-        signData = new SignData(new File(folder, "DXLData.data"));
+        signData = new SignData(new File(folder, SignData.FILE_NAME));
     }
 
     public DResourceWorld(DungeonsXL plugin, File folder) {
@@ -73,12 +73,12 @@ public class DResourceWorld implements ResourceWorld {
 
         this.folder = folder;
 
-        File configFile = new File(folder, "config.yml");
+        File configFile = new File(folder, WorldConfig.FILE_NAME);
         if (configFile.exists()) {
             config = new WorldConfig(plugin, configFile);
         }
 
-        signData = new SignData(new File(folder, "DXLData.data"));
+        signData = new SignData(new File(folder, SignData.FILE_NAME));
     }
 
     /* Getters and setters */
@@ -111,7 +111,7 @@ public class DResourceWorld implements ResourceWorld {
      */
     public WorldConfig getConfig(boolean generate) {
         if (config == null) {
-            File file = new File(folder, "config.yml");
+            File file = new File(folder, WorldConfig.FILE_NAME);
             if (file.exists()) {
                 try {
                     file.createNewFile();
@@ -177,7 +177,7 @@ public class DResourceWorld implements ResourceWorld {
 
     public DInstanceWorld instantiate(boolean game) {
         plugin.setLoadingWorld(true);
-        int id = DInstanceWorld.generateId(plugin.getInstanceCache());
+        int id = DInstanceWorld.counter;
         String name = DInstanceWorld.generateName(game, id);
 
         File instanceFolder = new File(Bukkit.getWorldContainer(), name);
@@ -198,11 +198,13 @@ public class DResourceWorld implements ResourceWorld {
             }
         }
 
-        DInstanceWorld instance = game ? new DGameWorld(plugin, this, instanceFolder, id) : new DEditWorld(plugin, this, instanceFolder, id);
+        DInstanceWorld instance = game ? new DGameWorld(plugin, this, instanceFolder) : new DEditWorld(plugin, this, instanceFolder);
 
         FileUtil.copyDir(folder, instanceFolder, DungeonsXL.EXCLUDED_FILES);
-        instance.world = new WeakReference<>(Bukkit.createWorld(WorldCreator.name(name).environment(getWorldEnvironment())));
-        instance.getWorld().setGameRule(GameRule.DO_FIRE_TICK, false);
+        instance.world = Bukkit.createWorld(WorldCreator.name(name).environment(getWorldEnvironment())).getName();
+        if (Internals.isAtLeast(Internals.v1_13_R1)) {
+            instance.getWorld().setGameRule(GameRule.DO_FIRE_TICK, false);
+        }
         if (Bukkit.getPluginManager().isPluginEnabled("dynmap")) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "dynmap pause all");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "dmap worldset " + name + " enabled:false");
@@ -211,6 +213,7 @@ public class DResourceWorld implements ResourceWorld {
 
         if (game) {
             signData.deserializeSigns((DGameWorld) instance);
+            instance.getWorld().setAutoSave(false);
         } else {
             signData.deserializeSigns((DEditWorld) instance);
         }
@@ -271,14 +274,14 @@ public class DResourceWorld implements ResourceWorld {
      * @return the automatically created DEditWorld instance
      */
     public DEditWorld generate() {
-        int id = DInstanceWorld.generateId(plugin.getInstanceCache());
+        int id = DInstanceWorld.counter;
         String name = DInstanceWorld.generateName(false, id);
         File folder = new File(Bukkit.getWorldContainer(), name);
         WorldCreator creator = new WorldCreator(name);
         creator.type(WorldType.FLAT);
         creator.generateStructures(false);
 
-        DEditWorld editWorld = new DEditWorld(plugin, this, folder, id);
+        DEditWorld editWorld = new DEditWorld(plugin, this, folder);
 
         EditWorldGenerateEvent event = new EditWorldGenerateEvent(editWorld);
         Bukkit.getPluginManager().callEvent(event);
@@ -291,10 +294,23 @@ public class DResourceWorld implements ResourceWorld {
         }
         FileUtil.copyDir(RAW, folder, DungeonsXL.EXCLUDED_FILES);
         editWorld.generateIdFile();
-        editWorld.world = new WeakReference<>(creator.createWorld());
+        editWorld.world = creator.createWorld().getName();
         editWorld.generateIdFile();
 
         return editWorld;
+    }
+
+    void clearFolder() {
+        for (File file : FileUtil.getFilesForFolder(getFolder())) {
+            if (file.getName().equals(SignData.FILE_NAME) || file.getName().equals(WorldConfig.FILE_NAME)) {
+                continue;
+            }
+            if (file.isDirectory()) {
+                FileUtil.removeDir(file);
+            } else {
+                file.delete();
+            }
+        }
     }
 
     /**
