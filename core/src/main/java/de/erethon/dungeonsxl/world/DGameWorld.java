@@ -35,6 +35,7 @@ import de.erethon.dungeonsxl.api.player.PlayerGroup;
 import de.erethon.dungeonsxl.api.sign.DungeonSign;
 import de.erethon.dungeonsxl.api.world.GameWorld;
 import de.erethon.dungeonsxl.sign.button.ReadySign;
+import de.erethon.dungeonsxl.sign.passive.PlayerStartSign;
 import de.erethon.dungeonsxl.sign.passive.StartSign;
 import de.erethon.dungeonsxl.sign.windup.MobSign;
 import de.erethon.dungeonsxl.trigger.FortuneTrigger;
@@ -51,13 +52,9 @@ import de.erethon.dungeonsxl.world.block.RewardChest;
 import de.erethon.dungeonsxl.world.block.TeamBed;
 import de.erethon.dungeonsxl.world.block.TeamFlag;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Array;
+import java.util.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -96,9 +93,12 @@ public class DGameWorld extends DInstanceWorld implements GameWorld {
 
     private boolean readySign;
 
+    private Map<Integer, Integer> currentPlayerSpawn;
+
     DGameWorld(DungeonsXL plugin, DResourceWorld resourceWorld, File folder) {
         super(plugin, resourceWorld, folder);
         caliburn = plugin.getCaliburn();
+        currentPlayerSpawn = new HashMap<Integer, Integer>();
     }
 
     @Override
@@ -127,6 +127,27 @@ public class DGameWorld extends DInstanceWorld implements GameWorld {
     @Override
     public Location getStartLocation(PlayerGroup dGroup) {
         int index = getGame().getGroups().indexOf(dGroup);
+
+        //Try Player indexed spawns
+        if (!currentPlayerSpawn.containsKey(index)) currentPlayerSpawn.put(index,0);
+        ArrayList<PlayerStartSign> pstartSigns = new ArrayList<PlayerStartSign>();
+        for(DungeonSign dsign: getDungeonSigns()) {
+            if(dsign instanceof PlayerStartSign && ((PlayerStartSign)dsign).getGroupid() == index) {
+                pstartSigns.add((PlayerStartSign)dsign);
+            }
+        }
+
+        if(pstartSigns.size()>0) {
+            if(currentPlayerSpawn.get(index) == pstartSigns.size()) {
+                currentPlayerSpawn.put(index, 0);
+            }
+            for(PlayerStartSign psign : pstartSigns) {
+                if(psign.getSpawn() == currentPlayerSpawn.get(index)) {
+                    currentPlayerSpawn.put(index, psign.getSpawn() + 1);
+                    return psign.getLocation();
+                }
+            }
+        }
 
         // Try the matching location
         StartSign anyStartSign = null;

@@ -38,6 +38,8 @@ import de.erethon.dungeonsxl.util.ParsingUtil;
 import de.erethon.dungeonsxl.world.DGameWorld;
 import de.erethon.dungeonsxl.world.block.LockedDoor;
 import java.util.ArrayList;
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

@@ -55,6 +55,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
@@ -254,6 +255,7 @@ public class DGroup implements PlayerGroup {
 
         plugin.getGroupAdapters().forEach(a -> a.removeExternalGroupMember(a.getExternalGroup(player), player));
     }
+
 
     @Override
     public PlayerCollection getInvitedPlayers() {

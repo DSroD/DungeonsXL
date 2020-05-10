@@ -318,6 +318,7 @@ public class DungeonsXL extends DREPlugin implements DungeonsAPI {
         signRegistry.add("TITLE", TitleSign.class);
         signRegistry.add("TRIGGER", TriggerSign.class);
         signRegistry.add("WAVE", WaveSign.class);
+        signRegistry.add("PLAYERSTART", PlayerStartSign.class);
         Bukkit.getPluginManager().registerEvents(new DSignListener(this), this);
 
         for (GameRule rule : GameRule.VALUES) {

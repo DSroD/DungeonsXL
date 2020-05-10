@@ -44,6 +44,8 @@ import de.erethon.dungeonsxl.world.DResourceWorld;
 import de.erethon.dungeonsxl.world.block.TeamFlag;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -105,7 +107,7 @@ public class DGamePlayer extends DInstancePlayer implements GamePlayer {
         initialLives = rules.getState(GameRule.INITIAL_LIVES);
         lives = initialLives;
 
-        Location teleport = world.getLobbyLocation();
+        Location teleport = rules.getState(GameRule.IS_LOBBY_DISABLED) ? world.getStartLocation(dGroup) : world.getLobbyLocation();
         if (teleport == null) {
             PlayerUtil.secureTeleport(player, world.getWorld().getSpawnLocation());
         } else {
@@ -608,6 +610,7 @@ public class DGamePlayer extends DInstancePlayer implements GamePlayer {
 
     public void onDeath(PlayerDeathEvent event) {
         DGameWorld gameWorld = (DGameWorld) getGameWorld();
+
         if (gameWorld == null) {
             return;
         }
@@ -618,7 +621,6 @@ public class DGamePlayer extends DInstancePlayer implements GamePlayer {
         }
         GameRuleContainer rules = game.getRules();
         boolean keepInventory = rules.getState(GameRule.KEEP_INVENTORY_ON_DEATH);
-
         GamePlayerDeathEvent dPlayerDeathEvent = new GamePlayerDeathEvent(this, keepInventory, 1);
         Bukkit.getPluginManager().callEvent(dPlayerDeathEvent);
         if (dPlayerDeathEvent.isCancelled()) {
@@ -703,7 +705,28 @@ public class DGamePlayer extends DInstancePlayer implements GamePlayer {
 
         if (rules.getState(GameRule.GAME_GOAL) == GameGoal.LAST_MAN_STANDING) {
             if (game.getGroups().size() == 1) {
-                ((DGroup) game.getGroups().get(0)).winGame();
+                new BukkitRunnable() {
+
+                    @Override
+                    public void run() {
+                        ((DGroup) game.getGroups().get(0)).winGame();
+                    }
+                }.runTaskLater(plugin, 100L);
+            }
+        }
+        if(rules.getState(GameRule.GAME_GOAL) == GameGoal.LAST_PLAYER_STANDING) {
+            if (game.getGroups().size() == 1 && game.getGroups().get(0).getMembers().size() == 1) {
+                for(String s : game.getGroups().get(0).getMembers().getNames()) { //TODO: Find better hack than this lmao
+                    game.getGroups().get(0).setName(s);
+                }
+                new BukkitRunnable() {
+
+                    @Override
+                    public void run() {
+                        ((DGroup) game.getGroups().get(0)).winGame();
+                    }
+                }.runTaskLater(plugin, 100L);
+
             }
         }
     }
