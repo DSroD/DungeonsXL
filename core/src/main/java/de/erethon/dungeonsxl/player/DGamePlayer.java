@@ -714,20 +714,23 @@ public class DGamePlayer extends DInstancePlayer implements GamePlayer {
                 }.runTaskLater(plugin, 100L);
             }
         }
-        if(rules.getState(GameRule.GAME_GOAL) == GameGoal.LAST_PLAYER_STANDING) {
-            if (game.getGroups().size() == 1 && game.getGroups().get(0).getMembers().size() == 1) {
-                for(String s : game.getGroups().get(0).getMembers().getNames()) { //TODO: Find better hack than this lmao
-                    game.getGroups().get(0).setName(s);
-                }
-                new BukkitRunnable() {
+        if(rules.getState(GameRule.GAME_GOAL) == GameGoal.LAST_PLAYER_STANDING && game.getGroups().size() == 1) {
+            Bukkit.getLogger().log(Level.INFO, "GOAL");
+            new BukkitRunnable() {
 
-                    @Override
-                    public void run() {
+                @Override
+                public void run() {
+                    if (((DGroup) game.getGroups().get(0)).getDGamePlayers().size() == 1) {
+                        Bukkit.getLogger().log(Level.INFO, "SIZE");
+                        for(String s : game.getGroups().get(0).getMembers().getNames()) { //TODO: Find better hack than this lmao
+
+                            game.getGroups().get(0).setName(s);
+                        }
                         ((DGroup) game.getGroups().get(0)).winGame();
                     }
-                }.runTaskLater(plugin, 100L);
+                }
+            }.runTaskLater(plugin, 100L);
 
-            }
         }
     }
 
